@@ -1,0 +1,3 @@
+(executable
+ (name slicer)
+ (libraries slicer_transforms goblint-cil goblint-cil.all-features))

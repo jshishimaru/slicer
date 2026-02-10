@@ -1,0 +1,30 @@
+# OCaml / Dune
+_build/
+*.cmi
+*.cmx
+*.cmo
+*.cmxa
+*.cmxs
+*.cma
+*.o
+*.a
+*.so
+*.dylib
+*.exe
+*.byte
+*.native
+*.install
+.merlin
+
+# Tests / outputs
+/tmp/
+/output/
+/suite/
+context.md
+test.c
+
+# Misc
+.DS_Store
+*.swp
+*.swo
+*~
