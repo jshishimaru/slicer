@@ -1,0 +1,520 @@
+[0;32m[pipeline][0m Limiting to first 5 of 506 files (use -n to change)
+[0;36m[1m══════════════════════════════════════════════[0m
+[0;36m[1m  Processing 5 file(s) from /home/jshishimaru/3-2/teb/assignments/slicer/suite[0m
+[0;36m[1m══════════════════════════════════════════════[0m
+
+[0;36m[1m━━━ Processing: test_0001 ━━━[0m
+[0;32m[pipeline][0m [test_0001] Step 1: Preprocessing
+[0;32m[pipeline][0m [test_0001] Step 1.5: gcov coverage profiling
+[0;32m[pipeline][0m [test_0001]   ✓ gcov data collected
+[0;32m[pipeline][0m [test_0001] Step 2: CIL transformation
+[slicer] Loading gcov data from /home/jshishimaru/3-2/teb/assignments/slicer/tmp/test_0001/gcov_data.json ...
+[gcov_data] Loaded: 90 dead functions, 253 dead lines, 45 executed lines
+[slicer] Parsing /home/jshishimaru/3-2/teb/assignments/slicer/tmp/test_0001/preprocessed.c ...
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1018 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1018 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1030 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1030 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1042 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1042 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1058 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1058 (only relevant if first argument of CReal is used).
+[slicer] Before (CIL AST): semicolon_loc=1445
+[slicer] Applying: Constant folding ...
+[slicer] Applying: Remove gcov-proven dead code ...
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_int8_t_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_add_func_int8_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_int8_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mul_func_int8_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mod_func_int8_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_div_func_int8_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_int8_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_int8_t_s_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_int8_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_int8_t_s_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_int16_t_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_add_func_int16_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_int16_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mul_func_int16_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mod_func_int16_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_div_func_int16_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_int16_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_int16_t_s_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_int16_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_int16_t_s_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_int32_t_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_add_func_int32_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_int32_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mul_func_int32_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mod_func_int32_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_div_func_int32_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_int32_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_int32_t_s_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_int32_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_int32_t_s_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_int64_t_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_add_func_int64_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_int64_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mul_func_int64_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mod_func_int64_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_div_func_int64_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_int64_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_int64_t_s_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_int64_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_int64_t_s_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_uint8_t_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_add_func_uint8_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_uint8_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mul_func_uint8_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mod_func_uint8_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_div_func_uint8_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_uint8_t_u_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_uint8_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_uint8_t_u_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_uint8_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_uint16_t_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_add_func_uint16_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_uint16_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mul_func_uint16_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mod_func_uint16_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_div_func_uint16_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_uint16_t_u_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_uint16_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_uint16_t_u_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_uint16_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_uint32_t_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_add_func_uint32_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_uint32_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mul_func_uint32_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mod_func_uint32_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_div_func_uint32_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_uint32_t_u_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_uint32_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_uint32_t_u_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_uint32_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_uint64_t_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_add_func_uint64_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_uint64_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mul_func_uint64_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mod_func_uint64_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_div_func_uint64_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_uint64_t_u_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_uint64_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_uint64_t_u_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_uint64_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_add_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mul_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_div_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_add_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mul_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_div_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_convert_func_float_to_int32_t (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: transparent_crc_bytes (unreferenced + never executed)
+[remove_gcov_dead] Removed 90 dead functions
+[remove_gcov_dead] Removed 0 dead instructions/statements
+[slicer] Applying: Remove unused globals ...
+[slicer] Applying: Remove empty functions ...
+[slicer] Applying: Merge declarations with initializers ...
+[slicer] Applying: Remove dead locals and stores ...
+[remove_dead_locals] iter 1: func_1 — removed 2 dead locals
+[slicer] Applying: Remove dead pure calls ...
+[slicer] Applying: Remove unused globals ...
+[slicer] Applying: Inline single-use temporaries ...
+[slicer] Applying: Reconstruct array initializers ...
+[slicer] Applying: Remove header globals ...
+[slicer]   Removed 26 header globals (kept 7)
+[slicer] Applying: Add #include directives ...
+[slicer]   Added 1 #include directive(s)
+[slicer] Applying: Preserve comments ...
+[preserve_comments] Injected 6 comment block(s) from /home/jshishimaru/3-2/teb/assignments/slicer/suite/test_0001.c
+[slicer] After (CIL AST):  semicolon_loc=22
+[slicer] Writing reduced C to /home/jshishimaru/3-2/teb/assignments/slicer/output/test_0001/output.c ...
+[slicer] Stats written to /home/jshishimaru/3-2/teb/assignments/slicer/tmp/test_0001/slicer_stats.txt (before=33, after=28)
+[slicer] Done.
+[0;32m[pipeline][0m [test_0001] Step 3: Compiling original
+[0;32m[pipeline][0m [test_0001] Step 4: Compiling reduced
+[0;32m[pipeline][0m [test_0001] Step 5: Correctness check (timeout=3s)
+[0;32m[pipeline][0m [test_0001]   ✓ Stdout matches exactly
+[0;32m[pipeline][0m [test_0001]   ✓ Exit codes match (0)
+[0;32m[pipeline][0m [test_0001] Step 6: Measuring CPU cycles
+[0;32m[pipeline][0m [test_0001] ── Summary ──
+[0;32m[pipeline][0m [test_0001]   Correctness:    PASS (stdout=PASS, exit_code=PASS)
+[0;32m[pipeline][0m [test_0001]   Stdout (orig):  checksum = 7BAE9946
+[0;32m[pipeline][0m [test_0001]   Stdout (red):   checksum = 7BAE9946
+[0;32m[pipeline][0m [test_0001]   Size:           4040 → 3965 bytes (1% reduction)
+[0;32m[pipeline][0m [test_0001]   Lines:          141 → 137 (2% reduction)
+[0;32m[pipeline][0m [test_0001]   Semicolon LOC:  33 → 28 (15% reduction)
+[0;32m[pipeline][0m [test_0001]   CPU cycles:     319,473 → 310,438 (-2%)
+[0;32m[pipeline][0m [test_0001]   Output:         /home/jshishimaru/3-2/teb/assignments/slicer/output/test_0001/output.c
+[0;32m[pipeline][0m [test_0001]   Stats:          /home/jshishimaru/3-2/teb/assignments/slicer/output/test_0001/stats.txt
+
+[0;36m[1m━━━ Processing: test_0002 ━━━[0m
+[0;32m[pipeline][0m [test_0002] Step 1: Preprocessing
+[0;32m[pipeline][0m [test_0002] Step 1.5: gcov coverage profiling
+[0;32m[pipeline][0m [test_0002]   ✓ gcov data collected
+[0;32m[pipeline][0m [test_0002] Step 2: CIL transformation
+[slicer] Loading gcov data from /home/jshishimaru/3-2/teb/assignments/slicer/tmp/test_0002/gcov_data.json ...
+[gcov_data] Loaded: 91 dead functions, 595 dead lines, 703 executed lines
+[slicer] Parsing /home/jshishimaru/3-2/teb/assignments/slicer/tmp/test_0002/preprocessed.c ...
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1018 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1018 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1030 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1030 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1042 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1042 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1058 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1058 (only relevant if first argument of CReal is used).
+[slicer] Before (CIL AST): semicolon_loc=5821
+[slicer] Applying: Constant folding ...
+[slicer] Applying: Remove gcov-proven dead code ...
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_int8_t_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mod_func_int8_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_int16_t_s_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_int32_t_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_int32_t_s_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_int64_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_uint8_t_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_uint8_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_uint32_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_uint64_t_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_add_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mul_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_div_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_add_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mul_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_div_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_convert_func_float_to_int32_t (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: transparent_crc_bytes (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: func_37 (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: func_46 (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: func_63 (unreferenced + never executed)
+[remove_gcov_dead] Removed 23 dead functions
+[remove_gcov_dead] Removed 2277 dead instructions/statements
+[slicer] Applying: Remove unused globals ...
+[slicer] Applying: Remove empty functions ...
+[slicer] Applying: Merge declarations with initializers ...
+[slicer] Applying: Remove dead locals and stores ...
+[remove_dead_locals] iter 1: func_1 — removed 7 dead locals
+[remove_dead_locals] iter 1: func_4 — removed 9 dead locals
+[remove_dead_locals] iter 1: func_11 — removed 17 dead locals
+[remove_dead_locals] iter 1: func_27 — removed 5 dead locals
+[slicer] Applying: Remove dead pure calls ...
+[remove_dead_calls] Removed 5 dead pure safe_* calls
+[slicer] Applying: Remove unused globals ...
+[slicer] Applying: Inline single-use temporaries ...
+[slicer] Applying: Reconstruct array initializers ...
+[slicer] Applying: Remove header globals ...
+[slicer]   Removed 43 header globals (kept 142)
+[slicer] Applying: Add #include directives ...
+[slicer]   Added 1 #include directive(s)
+[slicer] Applying: Preserve comments ...
+[preserve_comments] Injected 12 comment block(s) from /home/jshishimaru/3-2/teb/assignments/slicer/suite/test_0002.c
+[slicer] After (CIL AST):  semicolon_loc=780
+[slicer] Writing reduced C to /home/jshishimaru/3-2/teb/assignments/slicer/output/test_0002/output.c ...
+[slicer] Stats written to /home/jshishimaru/3-2/teb/assignments/slicer/tmp/test_0002/slicer_stats.txt (before=1449, after=973)
+[slicer] Done.
+[0;32m[pipeline][0m [test_0002] Step 3: Compiling original
+[0;32m[pipeline][0m [test_0002] Step 4: Compiling reduced
+[0;32m[pipeline][0m [test_0002] Step 5: Correctness check (timeout=3s)
+[0;32m[pipeline][0m [test_0002]   ✓ Stdout matches exactly
+[0;32m[pipeline][0m [test_0002]   ✓ Exit codes match (0)
+[0;32m[pipeline][0m [test_0002] Step 6: Measuring CPU cycles
+[0;32m[pipeline][0m [test_0002] ── Summary ──
+[0;32m[pipeline][0m [test_0002]   Correctness:    PASS (stdout=PASS, exit_code=PASS)
+[0;32m[pipeline][0m [test_0002]   Stdout (orig):  checksum = B48582AA
+[0;32m[pipeline][0m [test_0002]   Stdout (red):   checksum = B48582AA
+[0;32m[pipeline][0m [test_0002]   Size:           141105 → 125530 bytes (11% reduction)
+[0;32m[pipeline][0m [test_0002]   Lines:          1868 → 1238 (33% reduction)
+[0;32m[pipeline][0m [test_0002]   Semicolon LOC:  1449 → 973 (32% reduction)
+[0;32m[pipeline][0m [test_0002]   CPU cycles:     502,319 → 470,072 (-6%)
+[0;32m[pipeline][0m [test_0002]   Output:         /home/jshishimaru/3-2/teb/assignments/slicer/output/test_0002/output.c
+[0;32m[pipeline][0m [test_0002]   Stats:          /home/jshishimaru/3-2/teb/assignments/slicer/output/test_0002/stats.txt
+
+[0;36m[1m━━━ Processing: test_0003 ━━━[0m
+[0;32m[pipeline][0m [test_0003] Step 1: Preprocessing
+[0;32m[pipeline][0m [test_0003] Step 1.5: gcov coverage profiling
+[0;32m[pipeline][0m [test_0003]   ✓ gcov data collected
+[0;32m[pipeline][0m [test_0003] Step 2: CIL transformation
+[slicer] Loading gcov data from /home/jshishimaru/3-2/teb/assignments/slicer/tmp/test_0003/gcov_data.json ...
+[gcov_data] Loaded: 99 dead functions, 535 dead lines, 124 executed lines
+[slicer] Parsing /home/jshishimaru/3-2/teb/assignments/slicer/tmp/test_0003/preprocessed.c ...
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1018 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1018 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1030 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1030 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1042 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1042 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1058 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1058 (only relevant if first argument of CReal is used).
+[slicer] Before (CIL AST): semicolon_loc=4950
+[slicer] Applying: Constant folding ...
+[slicer] Applying: Remove gcov-proven dead code ...
+[remove_gcov_dead]   Removing dead function: safe_sub_func_int8_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mod_func_int8_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_int8_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_int8_t_s_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_int32_t_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_int64_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_uint8_t_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_uint8_t_u_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_uint8_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_uint16_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_uint16_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_uint32_t_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_uint32_t_u_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_uint64_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_uint64_t_u_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_add_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mul_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_div_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_add_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mul_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_div_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_convert_func_float_to_int32_t (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: transparent_crc_bytes (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: func_7 (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: func_15 (unreferenced + never executed)
+[remove_gcov_dead] Removed 27 dead functions
+[remove_gcov_dead] Removed 2428 dead instructions/statements
+[slicer] Applying: Remove unused globals ...
+[slicer] Applying: Remove empty functions ...
+[slicer] Applying: Merge declarations with initializers ...
+[slicer] Applying: Remove dead locals and stores ...
+[remove_dead_locals] iter 1: func_1 — removed 14 dead locals
+[slicer] Applying: Remove dead pure calls ...
+[slicer] Applying: Remove unused globals ...
+[slicer] Applying: Inline single-use temporaries ...
+[slicer] Applying: Reconstruct array initializers ...
+[slicer] Applying: Remove header globals ...
+[slicer]   Removed 32 header globals (kept 40)
+[slicer] Applying: Add #include directives ...
+[slicer]   Added 1 #include directive(s)
+[slicer] Applying: Preserve comments ...
+[preserve_comments] Injected 6 comment block(s) from /home/jshishimaru/3-2/teb/assignments/slicer/suite/test_0003.c
+[slicer] After (CIL AST):  semicolon_loc=125
+[slicer] Writing reduced C to /home/jshishimaru/3-2/teb/assignments/slicer/output/test_0003/output.c ...
+[slicer] Stats written to /home/jshishimaru/3-2/teb/assignments/slicer/tmp/test_0003/slicer_stats.txt (before=655, after=139)
+[slicer] Done.
+[0;32m[pipeline][0m [test_0003] Step 3: Compiling original
+[0;32m[pipeline][0m [test_0003] Step 4: Compiling reduced
+[0;32m[pipeline][0m [test_0003] Step 5: Correctness check (timeout=3s)
+[0;32m[pipeline][0m [test_0003]   ✓ Stdout matches exactly
+[0;32m[pipeline][0m [test_0003]   ✓ Exit codes match (0)
+[0;32m[pipeline][0m [test_0003] Step 6: Measuring CPU cycles
+[0;32m[pipeline][0m [test_0003] ── Summary ──
+[0;32m[pipeline][0m [test_0003]   Correctness:    PASS (stdout=PASS, exit_code=PASS)
+[0;32m[pipeline][0m [test_0003]   Stdout (orig):  checksum = 105C37C6
+[0;32m[pipeline][0m [test_0003]   Stdout (red):   checksum = 105C37C6
+[0;32m[pipeline][0m [test_0003]   Size:           79183 → 23224 bytes (70% reduction)
+[0;32m[pipeline][0m [test_0003]   Lines:          997 → 281 (71% reduction)
+[0;32m[pipeline][0m [test_0003]   Semicolon LOC:  655 → 139 (78% reduction)
+[0;32m[pipeline][0m [test_0003]   CPU cycles:     356,629 → 379,682 (+6%)
+[0;32m[pipeline][0m [test_0003]   Output:         /home/jshishimaru/3-2/teb/assignments/slicer/output/test_0003/output.c
+[0;32m[pipeline][0m [test_0003]   Stats:          /home/jshishimaru/3-2/teb/assignments/slicer/output/test_0003/stats.txt
+
+[0;36m[1m━━━ Processing: test_0004 ━━━[0m
+[0;32m[pipeline][0m [test_0004] Step 1: Preprocessing
+[0;32m[pipeline][0m [test_0004] Step 1.5: gcov coverage profiling
+[0;32m[pipeline][0m [test_0004]   ✓ gcov data collected
+[0;32m[pipeline][0m [test_0004] Step 2: CIL transformation
+[slicer] Loading gcov data from /home/jshishimaru/3-2/teb/assignments/slicer/tmp/test_0004/gcov_data.json ...
+[gcov_data] Loaded: 99 dead functions, 607 dead lines, 285 executed lines
+[slicer] Parsing /home/jshishimaru/3-2/teb/assignments/slicer/tmp/test_0004/preprocessed.c ...
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1018 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1018 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1030 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1030 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1042 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1042 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1058 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1058 (only relevant if first argument of CReal is used).
+[slicer] Before (CIL AST): semicolon_loc=4787
+[slicer] Applying: Constant folding ...
+[slicer] Applying: Remove gcov-proven dead code ...
+[remove_gcov_dead]   Removing dead function: safe_sub_func_int8_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_int16_t_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_int16_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_int16_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_int16_t_s_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_int32_t_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mod_func_int64_t_s_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_uint8_t_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_div_func_uint8_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_uint8_t_u_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_uint8_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_uint8_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_rshift_func_uint16_t_u_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_uint32_t_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_uint64_t_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_add_func_uint64_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_add_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mul_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_div_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_add_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mul_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_div_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_convert_func_float_to_int32_t (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: transparent_crc_bytes (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: func_3 (unreferenced + never executed)
+[remove_gcov_dead] Removed 27 dead functions
+[remove_gcov_dead] Removed 2095 dead instructions/statements
+[slicer] Applying: Remove unused globals ...
+[slicer] Applying: Remove empty functions ...
+[slicer] Applying: Merge declarations with initializers ...
+[slicer] Applying: Remove dead locals and stores ...
+[remove_dead_locals] iter 1: func_1 — removed 6 dead locals
+[slicer] Applying: Remove dead pure calls ...
+[slicer] Applying: Remove unused globals ...
+[slicer] Applying: Inline single-use temporaries ...
+[slicer] Applying: Reconstruct array initializers ...
+[slicer] Applying: Remove header globals ...
+[slicer]   Removed 32 header globals (kept 164)
+[slicer] Applying: Add #include directives ...
+[slicer]   Added 1 #include directive(s)
+[slicer] Applying: Preserve comments ...
+[preserve_comments] Injected 8 comment block(s) from /home/jshishimaru/3-2/teb/assignments/slicer/suite/test_0004.c
+[slicer] After (CIL AST):  semicolon_loc=439
+[slicer] Writing reduced C to /home/jshishimaru/3-2/teb/assignments/slicer/output/test_0004/output.c ...
+[slicer] Stats written to /home/jshishimaru/3-2/teb/assignments/slicer/tmp/test_0004/slicer_stats.txt (before=1119, after=462)
+[slicer] Done.
+[0;32m[pipeline][0m [test_0004] Step 3: Compiling original
+[0;32m[pipeline][0m [test_0004] Step 4: Compiling reduced
+[0;32m[pipeline][0m [test_0004] Step 5: Correctness check (timeout=3s)
+[0;32m[pipeline][0m [test_0004]   ✓ Stdout matches exactly
+[0;32m[pipeline][0m [test_0004]   ✓ Exit codes match (0)
+[0;32m[pipeline][0m [test_0004] Step 6: Measuring CPU cycles
+[0;32m[pipeline][0m [test_0004] ── Summary ──
+[0;32m[pipeline][0m [test_0004]   Correctness:    PASS (stdout=PASS, exit_code=PASS)
+[0;32m[pipeline][0m [test_0004]   Stdout (orig):  checksum = D3E3B67
+[0;32m[pipeline][0m [test_0004]   Stdout (red):   checksum = D3E3B67
+[0;32m[pipeline][0m [test_0004]   Size:           108051 → 46730 bytes (56% reduction)
+[0;32m[pipeline][0m [test_0004]   Lines:          1533 → 637 (58% reduction)
+[0;32m[pipeline][0m [test_0004]   Semicolon LOC:  1119 → 462 (58% reduction)
+[0;32m[pipeline][0m [test_0004]   CPU cycles:     518,392 → 401,634 (-22%)
+[0;32m[pipeline][0m [test_0004]   Output:         /home/jshishimaru/3-2/teb/assignments/slicer/output/test_0004/output.c
+[0;32m[pipeline][0m [test_0004]   Stats:          /home/jshishimaru/3-2/teb/assignments/slicer/output/test_0004/stats.txt
+
+[0;32m[pipeline][0m Progress: 5/5  (0 files/s, ETA 0s)
+[0;36m[1m━━━ Processing: test_0005 ━━━[0m
+[0;32m[pipeline][0m [test_0005] Step 1: Preprocessing
+[0;32m[pipeline][0m [test_0005] Step 1.5: gcov coverage profiling
+[0;32m[pipeline][0m [test_0005]   ✓ gcov data collected
+[0;32m[pipeline][0m [test_0005] Step 2: CIL transformation
+[slicer] Loading gcov data from /home/jshishimaru/3-2/teb/assignments/slicer/tmp/test_0005/gcov_data.json ...
+[gcov_data] Loaded: 50 dead functions, 489 dead lines, 529 executed lines
+[slicer] Parsing /home/jshishimaru/3-2/teb/assignments/slicer/tmp/test_0005/preprocessed.c ...
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1018 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1018 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1030 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1030 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1042 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1042 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1058 (only relevant if first argument of CReal is used).
+treating long double constant 1.79769313486231570814527423731704357e+308L as double constant at /usr/include/safe_math.h:1058 (only relevant if first argument of CReal is used).
+[slicer] Before (CIL AST): semicolon_loc=6832
+[slicer] Applying: Constant folding ...
+[slicer] Applying: Remove gcov-proven dead code ...
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_int8_t_s (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_unary_minus_func_uint8_t_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_lshift_func_uint8_t_u_u (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_add_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mul_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_div_func_float_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_add_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_sub_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_mul_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_div_func_double_f_f (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: safe_convert_func_float_to_int32_t (unreferenced + never executed)
+[remove_gcov_dead]   Removing dead function: transparent_crc_bytes (unreferenced + never executed)
+[remove_gcov_dead] Removed 13 dead functions
+[remove_gcov_dead] Removed 2244 dead instructions/statements
+[slicer] Applying: Remove unused globals ...
+[slicer] Applying: Remove empty functions ...
+[slicer] Applying: Merge declarations with initializers ...
+[slicer] Applying: Remove dead locals and stores ...
+[remove_dead_locals] iter 1: func_1 — removed 84 dead locals
+[remove_dead_locals] iter 1: func_2 — removed 12 dead locals
+[remove_dead_locals] iter 1: func_17 — removed 4 dead locals
+[remove_dead_locals] iter 1: func_24 — removed 1 dead locals
+[remove_dead_locals] iter 1: func_28 — removed 13 dead locals
+[remove_dead_locals] iter 1: func_33 — removed 4 dead locals
+[remove_dead_locals] iter 1: func_95 — removed 1 dead locals
+[remove_dead_locals] iter 1: func_103 — removed 5 dead locals
+[remove_dead_locals] iter 1: func_110 — removed 6 dead locals
+[remove_dead_locals] iter 1: func_113 — removed 3 dead locals
+[remove_dead_locals] iter 2: func_1 — removed 2 dead locals
+[slicer] Applying: Remove dead pure calls ...
+[remove_dead_calls] Removed 30 dead pure safe_* calls
+[slicer] Applying: Remove unused globals ...
+[slicer] Applying: Inline single-use temporaries ...
+[slicer] Applying: Reconstruct array initializers ...
+[slicer] Applying: Remove header globals ...
+[slicer]   Removed 97 header globals (kept 102)
+[slicer] Applying: Add #include directives ...
+[slicer]   Added 1 #include directive(s)
+[slicer] Applying: Preserve comments ...
+[preserve_comments] Injected 15 comment block(s) from /home/jshishimaru/3-2/teb/assignments/slicer/suite/test_0005.c
+[slicer] After (CIL AST):  semicolon_loc=846
+[slicer] Writing reduced C to /home/jshishimaru/3-2/teb/assignments/slicer/output/test_0005/output.c ...
+[slicer] Stats written to /home/jshishimaru/3-2/teb/assignments/slicer/tmp/test_0005/slicer_stats.txt (before=1040, after=1384)
+[slicer] Done.
+[0;32m[pipeline][0m [test_0005] Step 3: Compiling original
+[0;32m[pipeline][0m [test_0005] Step 4: Compiling reduced
+[0;32m[pipeline][0m [test_0005] Step 5: Correctness check (timeout=3s)
+[0;32m[pipeline][0m [test_0005]   ✓ Stdout matches exactly
+[0;32m[pipeline][0m [test_0005]   ✓ Exit codes match (0)
+[0;32m[pipeline][0m [test_0005]   SLOC increased (-33%) — reverting output to original source
+[0;32m[pipeline][0m [test_0005] Step 6: Measuring CPU cycles
+[0;32m[pipeline][0m [test_0005] ── Summary ──
+[0;32m[pipeline][0m [test_0005]   Correctness:    PASS (stdout=PASS, exit_code=PASS)
+[0;32m[pipeline][0m [test_0005]   Stdout (orig):  checksum = C9810583
+[0;32m[pipeline][0m [test_0005]   Stdout (red):   checksum = C9810583
+[0;32m[pipeline][0m [test_0005]   Size:           111322 → 111322 bytes (0% reduction)
+[0;32m[pipeline][0m [test_0005]   Lines:          1447 → 1447 (0% reduction)
+[0;32m[pipeline][0m [test_0005]   Semicolon LOC:  1040 → 1040 (0% reduction)
+[0;32m[pipeline][0m [test_0005]   CPU cycles:     318,365 → 293,806 (-7%)
+[0;32m[pipeline][0m [test_0005]   Output:         /home/jshishimaru/3-2/teb/assignments/slicer/output/test_0005/output.c
+[0;32m[pipeline][0m [test_0005]   Stats:          /home/jshishimaru/3-2/teb/assignments/slicer/output/test_0005/stats.txt
+
+
+[0;36m[1m══════════════════════════════════════════════[0m
+[0;36m[1m  Per-File Results (sorted by SLOC reduction)[0m
+[0;36m[1m══════════════════════════════════════════════[0m
+
+[1mFILE                PASS?  B_SLOC  A_SLOC  SLOC%  B_LINE  A_LINE  LINE%   B_BYTE   A_BYTE  SIZE%[0m
+─────────────────────────────────────────────────────────────────────────────────────
+ test_0003            PASS     655     139    78%     997     281    71%    79183    23224    70%
+ test_0004            PASS    1119     462    58%    1533     637    58%   108051    46730    56%
+ test_0002            PASS    1449     973    32%    1868    1238    33%   141105   125530    11%
+ test_0001            PASS      33      28    15%     141     137     2%     4040     3965     1%
+ test_0005            PASS    1040    1040     0%    1447    1447     0%   111322   111322     0%
+
+══════════════════════════════════════════════════
+  Overall Summary (5 files)
+══════════════════════════════════════════════════
+  Correctness:  5/5 passed, 0 failed, 0 skipped
+
+  ┌──────────────────┬──────────┬──────────┬────────────┐
+  │ Metric (avg)     │ Before   │ After    │ Reduction  │
+  ├──────────────────┼──────────┼──────────┼────────────┤
+  │ Size (bytes)     │   88,740 │   62,154 │        29% │
+  │ Lines (wc -l)    │    1,197 │      748 │        37% │
+  │ Semicolon LOC    │      859 │      528 │        38% │
+  │ CPU Cycles       │  403,035 │  371,126 │        -7% │
+  └──────────────────┴──────────┴──────────┴────────────┘
+
+[0;36m[1m══════════════════════════════════════════════[0m
+[0;32m[pipeline][0m   Total: 5  |  Passed: 5  |  Failed: 0  |  Skipped: 0
+[0;36m[1m══════════════════════════════════════════════[0m
+
+[0;32m[pipeline][0m ═══ Pipeline complete ═══
+[0;32m[pipeline][0m   Output directory: /home/jshishimaru/3-2/teb/assignments/slicer/output/

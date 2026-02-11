@@ -439,12 +439,200 @@ let cleanup (text : string) : string =
     String.split_on_char '\n' s
   in
 
+  (* Pass 7: inline single-use temporaries.
+     CIL introduces temporary variables for every sub-expression:
+       tmp___3 = safe_func(args);
+       tmp___4 = *p | (unsigned long)tmp___3;
+       *p = tmp___4;
+     This pass inlines each temp into its single use, collapsing chains:
+       *p = *p | (unsigned long)safe_func(args);
+     Correctness: only inlines a temp when it has exactly ONE use across all
+     lines (not just the next line). Pre-counts occurrences to avoid removing
+     definitions that are referenced later. *)
+  let inline_temps lines =
+    let is_word_char c =
+      (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+      (c >= '0' && c <= '9') || c = '_'
+    in
+    (* Helper: count word-bounded occurrences of tok in s *)
+    let count_word (tok : string) (s : string) : int =
+      let tlen = String.length tok in
+      let slen = String.length s in
+      let n = ref 0 in
+      let i = ref 0 in
+      while !i <= slen - tlen do
+        if String.sub s !i tlen = tok then begin
+          let before_ok = !i = 0 || not (is_word_char s.[!i - 1]) in
+          let after_ok = !i + tlen >= slen || not (is_word_char s.[!i + tlen]) in
+          if before_ok && after_ok then incr n;
+          i := !i + tlen
+        end else
+          incr i
+      done;
+      !n
+    in
+    (* Helper: replace first word-bounded occurrence of tok with repl *)
+    let replace_word (tok : string) (repl : string) (s : string) : string =
+      let tlen = String.length tok in
+      let slen = String.length s in
+      let i = ref 0 in
+      let found = ref (-1) in
+      while !i <= slen - tlen && !found < 0 do
+        if String.sub s !i tlen = tok then begin
+          let before_ok = !i = 0 || not (is_word_char s.[!i - 1]) in
+          let after_ok = !i + tlen >= slen || not (is_word_char s.[!i + tlen]) in
+          if before_ok && after_ok then found := !i
+          else i := !i + tlen
+        end else incr i
+      done;
+      if !found >= 0 then
+        String.sub s 0 !found ^ repl ^ String.sub s (!found + tlen) (slen - !found - tlen)
+      else s
+    in
+    (* Helper: check if rhs contains a function call (identifier followed by '(') *)
+    let has_function_call (rhs : string) : bool =
+      let rlen = String.length rhs in
+      let found = ref false in
+      for k = 1 to rlen - 1 do
+        if rhs.[k] = '(' then
+          let prev = rhs.[k - 1] in
+          if is_word_char prev then
+            found := true
+      done;
+      !found
+    in
+    (* Helper: try to parse "  VAR = EXPR;" from a line.
+       Returns Some (var_name, expr_text) if the line is a simple temp definition. *)
+    let parse_tmp_def (line : string) : (string * string) option =
+      let trimmed = String.trim line in
+      let len = String.length trimmed in
+      if len < 5 then None
+      else if trimmed.[len - 1] <> ';' then None
+      else
+        let eq_pos = ref (-1) in
+        let in_paren = ref 0 in
+        let in_str = ref false in
+        let in_chr = ref false in
+        let prev = ref '\x00' in
+        for k = 0 to len - 1 do
+          let c = trimmed.[k] in
+          if !in_str then
+            (if c = '"' && !prev <> '\\' then in_str := false)
+          else if !in_chr then
+            (if c = '\'' && !prev <> '\\' then in_chr := false)
+          else if c = '"' then in_str := true
+          else if c = '\'' then in_chr := true
+          else if c = '(' then incr in_paren
+          else if c = ')' then decr in_paren
+          else if c = '=' && !in_paren = 0 && !eq_pos < 0 then begin
+            if k + 1 < len && trimmed.[k + 1] = '=' then ()
+            else if k > 0 && (let p = trimmed.[k - 1] in
+                              p = '<' || p = '>' || p = '!' || p = '+'
+                              || p = '-' || p = '*' || p = '/' || p = '%'
+                              || p = '&' || p = '|' || p = '^') then ()
+            else eq_pos := k
+          end;
+          prev := c
+        done;
+        if !eq_pos < 0 then None
+        else
+          let lhs = String.trim (String.sub trimmed 0 !eq_pos) in
+          let rhs_raw = String.sub trimmed (!eq_pos + 1) (len - !eq_pos - 2) in
+          let rhs = String.trim rhs_raw in
+          let is_ident s =
+            String.length s > 0 &&
+            (let c0 = s.[0] in c0 = '_' || (c0 >= 'a' && c0 <= 'z') || (c0 >= 'A' && c0 <= 'Z')) &&
+            String.to_seq s |> Seq.for_all (fun c -> is_word_char c)
+          in
+          if is_ident lhs && String.length rhs > 0
+             && String.length lhs >= 3
+             && String.sub lhs 0 3 = "tmp"
+             && not (has_function_call rhs) then
+            Some (lhs, rhs)
+          else None
+    in
+    (* ---- Pre-pass: count total uses of each tmp variable ---- *)
+    (* For each tmp var, count total word-bounded occurrences across all lines,
+       then subtract 1 for the definition LHS. Only vars with uses=1 are
+       eligible for inlining. *)
+    let tmp_uses = Hashtbl.create 64 in
+    List.iter (fun line ->
+      match parse_tmp_def line with
+      | Some (var, _) ->
+        if not (Hashtbl.mem tmp_uses var) then
+          Hashtbl.replace tmp_uses var 0
+      | None -> ()
+    ) lines;
+    Hashtbl.iter (fun var _ ->
+      let total = List.fold_left (fun acc line -> acc + count_word var line) 0 lines in
+      (* Subtract 1 for the LHS of the definition *)
+      Hashtbl.replace tmp_uses var (total - 1)
+    ) tmp_uses;
+    (* ---- Inline pass using pre-computed counts ---- *)
+    let result = Buffer.create (List.length lines * 40) in
+    let pending : (string * string * string) option ref = ref None in
+    let flush_pending () =
+      match !pending with
+      | Some (_, _, orig_line) ->
+        Buffer.add_string result orig_line;
+        Buffer.add_char result '\n';
+        pending := None
+      | None -> ()
+    in
+    let emit line =
+      Buffer.add_string result line;
+      Buffer.add_char result '\n'
+    in
+    List.iter (fun line ->
+      match !pending with
+      | Some (var, expr, _orig) ->
+        (* Only inline if: (a) next line uses var exactly once AND
+           (b) var has exactly 1 total use across ALL lines (pre-counted) *)
+        let next_uses = count_word var line in
+        let total_uses = try Hashtbl.find tmp_uses var with Not_found -> 999 in
+        if next_uses = 1 && total_uses = 1 then begin
+          let needs_parens =
+            String.contains expr ' ' || String.contains expr '+'
+            || String.contains expr '-' || String.contains expr '|'
+            || String.contains expr '&' || String.contains expr '?'
+          in
+          let replacement = if needs_parens then "(" ^ expr ^ ")" else expr in
+          let new_line = replace_word var replacement line in
+          pending := None;
+          (match parse_tmp_def new_line with
+           | Some (v2, e2) ->
+             pending := Some (v2, e2, new_line)
+           | None ->
+             emit new_line)
+        end else begin
+          flush_pending ();
+          (match parse_tmp_def line with
+           | Some (v, e) ->
+             pending := Some (v, e, line)
+           | None ->
+             emit line)
+        end
+      | None ->
+        (match parse_tmp_def line with
+         | Some (v, e) ->
+           pending := Some (v, e, line)
+         | None ->
+           emit line)
+    ) lines;
+    flush_pending ();
+    let s = Buffer.contents result in
+    let s = if String.length s > 0 && s.[String.length s - 1] = '\n'
+            then String.sub s 0 (String.length s - 1) else s in
+    String.split_on_char '\n' s
+  in
+
   let lines = collapse_blanks lines in
   let lines = remove_inner_braces lines in
   let lines = remove_blank_after_brace lines in
   let lines = List.map collapse_spaces lines in
   let lines = while_to_for lines in
   let lines = collapse_initializers lines in
+  let lines = inline_temps lines in
   (* Final: collapse blanks again after transformations *)
   let lines = collapse_blanks lines in
   String.concat "\n" lines

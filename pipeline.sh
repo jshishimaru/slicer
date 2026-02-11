@@ -42,6 +42,18 @@ summary_header() { echo -e "${CYAN}${BOLD}$*${NC}"; }
 # ── Helper: strip commas from perf numbers for arithmetic ──
 strip_commas() { echo "$1" | tr -d ','; }
 
+# ── Helper: format integer with commas ──
+format_int() {
+    local val="$1"
+    if [[ "$val" =~ ^[0-9]+$ ]]; then
+        # Use LC_ALL=en_US.UTF-8 to ensure comma separator if printf supports %'d
+        # If not, fallback to simple sed
+        LC_ALL=en_US.UTF-8 printf "%'d" "$val" 2>/dev/null || echo "$val" | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta'
+    else
+        echo "$val"
+    fi
+}
+
 # ── Helper: compute percentage change (integer) ──
 # pct_change <before> <after> → prints e.g. "-12" or "+5"
 pct_change() {
@@ -247,6 +259,23 @@ process_file() {
     if [ "$BEFORE_SLOC" -gt 0 ]; then
         SLOC_REDUCTION=$(( (BEFORE_SLOC - AFTER_SLOC) * 100 / BEFORE_SLOC ))
     fi
+
+    # ── Fallback: if SLOC increased (negative reduction), revert to original ──
+    if [ "$SLOC_REDUCTION" -lt 0 ]; then
+        info "[$BASENAME]   SLOC increased (${SLOC_REDUCTION}%) — reverting output to original source"
+        cp "$INPUT" "$OUTPUT_C"
+        AFTER_SLOC="$BEFORE_SLOC"
+        SLOC_REDUCTION=0
+        REDUCED_BYTES=$(wc -c < "$OUTPUT_C")
+        REDUCED_LINES=$(wc -l < "$OUTPUT_C")
+        if [ "$ORIG_BYTES" -gt 0 ]; then
+            SIZE_REDUCTION=$(( (ORIG_BYTES - REDUCED_BYTES) * 100 / ORIG_BYTES ))
+        fi
+        if [ "$ORIG_LINES" -gt 0 ]; then
+            LINES_REDUCTION=$(( (ORIG_LINES - REDUCED_LINES) * 100 / ORIG_LINES ))
+        fi
+    fi
+
     local LINES_REDUCTION=0
     if [ "$ORIG_LINES" -gt 0 ]; then
         LINES_REDUCTION=$(( (ORIG_LINES - REDUCED_LINES) * 100 / ORIG_LINES ))
@@ -275,18 +304,43 @@ process_file() {
 
     # ── Write stats.txt ──
     {
-        echo "═══════════════════════════════════════════"
+        echo "═══════════════════════════════════════════════"
         echo "  Stats for: $BASENAME"
-        echo "═══════════════════════════════════════════"
+        echo "═══════════════════════════════════════════════"
+        echo "Source: $INPUT"
         echo ""
+        printf "  %-20s %s\n" "Correctness" "$CORRECT"
+        printf "  %-20s %s\n" "Stdout Match" "$STDOUT_MATCH"
+        printf "  %-20s %s  (original=%s, reduced=%s)\n" "Exit Code Match" "$EXIT_MATCH" "$ORIG_EXIT" "$REDUCED_EXIT"
+        echo ""
+        echo "  ┌──────────────────┬──────────┬──────────┬────────────┐"
+        echo "  │ Metric           │ Before   │ After    │ Reduction  │"
+        echo "  ├──────────────────┼──────────┼──────────┼────────────┤"
+        printf "  │ %-16s │ %8s │ %8s │ %10s │\n" "Size (bytes)" "$(format_int "$ORIG_BYTES")" "$(format_int "$REDUCED_BYTES")" "${SIZE_REDUCTION}%"
+        printf "  │ %-16s │ %8s │ %8s │ %10s │\n" "Lines (wc -l)" "$(format_int "$ORIG_LINES")" "$(format_int "$REDUCED_LINES")" "${LINES_REDUCTION}%"
+        printf "  │ %-16s │ %8s │ %8s │ %10s │\n" "Semicolon LOC" "$(format_int "$BEFORE_SLOC")" "$(format_int "$AFTER_SLOC")" "${SLOC_REDUCTION}%"
+        printf "  │ %-16s │ %8s │ %8s │ %10s │\n" "CPU Cycles" "$(format_int "$ORIG_CYCLES")" "$(format_int "$REDUCED_CYCLES")" "${CYCLES_CHANGE}"
+        echo "  └──────────────────┴──────────┴──────────┴────────────┘"
+        echo ""
+        echo "── Raw Stats (for scripting) ──"
         echo "source_file=$INPUT"
-        echo ""
-        echo "── Correctness ──"
         echo "correctness=$CORRECT"
         echo "stdout_match=$STDOUT_MATCH"
         echo "exit_code_match=$EXIT_MATCH"
         echo "exit_code_original=$ORIG_EXIT"
         echo "exit_code_reduced=$REDUCED_EXIT"
+        echo "before_bytes=$ORIG_BYTES"
+        echo "after_bytes=$REDUCED_BYTES"
+        echo "size_reduction_pct=${SIZE_REDUCTION}%"
+        echo "before_lines=$ORIG_LINES"
+        echo "after_lines=$REDUCED_LINES"
+        echo "lines_reduction_pct=${LINES_REDUCTION}%"
+        echo "before_semicolon_loc=$BEFORE_SLOC"
+        echo "after_semicolon_loc=$AFTER_SLOC"
+        echo "sloc_reduction_pct=${SLOC_REDUCTION}%"
+        echo "before_cycles=$ORIG_CYCLES"
+        echo "after_cycles=$REDUCED_CYCLES"
+        echo "cycles_change_pct=$CYCLES_CHANGE"
         echo ""
         echo "── Program Output (stdout) ──"
         echo "before_stdout<<EOF"
@@ -295,26 +349,6 @@ process_file() {
         echo "after_stdout<<EOF"
         echo "$REDUCED_STDOUT"
         echo "EOF"
-        echo ""
-        echo "── Size (bytes) ──"
-        echo "before_bytes=$ORIG_BYTES"
-        echo "after_bytes=$REDUCED_BYTES"
-        echo "size_reduction_pct=${SIZE_REDUCTION}%"
-        echo ""
-        echo "── Lines (wc -l) ──"
-        echo "before_lines=$ORIG_LINES"
-        echo "after_lines=$REDUCED_LINES"
-        echo "lines_reduction_pct=${LINES_REDUCTION}%"
-        echo ""
-        echo "── Semicolon LOC (raw file) ──"
-        echo "before_semicolon_loc=$BEFORE_SLOC"
-        echo "after_semicolon_loc=$AFTER_SLOC"
-        echo "sloc_reduction_pct=${SLOC_REDUCTION}%"
-        echo ""
-        echo "── CPU Cycles (perf stat -e cycles:u -r 3) ──"
-        echo "before_cycles=$ORIG_CYCLES"
-        echo "after_cycles=$REDUCED_CYCLES"
-        echo "cycles_change_pct=$CYCLES_CHANGE"
     } > "$STATS_FILE"
 
     # ── Print summary ──
@@ -411,41 +445,44 @@ if [ -d "$TARGET" ]; then
 
     # ── Per-file table (skip in quiet mode) ──
     if [ "$QUIET" -eq 0 ]; then
-    echo ""
-    header "══════════════════════════════════════════════"
-    header "  Per-File Results"
-    header "══════════════════════════════════════════════"
-    echo ""
+        echo ""
+        header "══════════════════════════════════════════════"
+        header "  Per-File Results (sorted by SLOC reduction)"
+        header "══════════════════════════════════════════════"
+        echo ""
 
-    printf "${BOLD}%-18s %6s %8s %8s %6s %8s %8s %6s %12s %12s %7s${NC}\n" \
-        "FILE" "PASS?" "B_BYTES" "A_BYTES" "SIZE%" "B_SLOC" "A_SLOC" "SLOC%" "B_CYCLES" "A_CYCLES" "CYC%"
-    printf '%.0s─' {1..115}; echo ""
+        printf "${BOLD}%-18s %6s %7s %7s %6s %7s %7s %6s %8s %8s %6s${NC}\n" \
+            "FILE" "PASS?" "B_SLOC" "A_SLOC" "SLOC%" "B_LINE" "A_LINE" "LINE%" "B_BYTE" "A_BYTE" "SIZE%"
+        printf '%.0s─' {1..85}; echo ""
 
-    for f in "${C_FILES[@]}"; do
-        BASENAME="$(basename "$f" .c)"
-        SF="$SCRIPT_DIR/output/$BASENAME/stats.txt"
-        CR=$(grep '^correctness=' "$SF" | cut -d= -f2)
-        BB=$(grep '^before_bytes=' "$SF" | cut -d= -f2)
-        AB=$(grep '^after_bytes=' "$SF" | cut -d= -f2)
-        SP=$(grep '^size_reduction_pct=' "$SF" | cut -d= -f2)
-        BS=$(grep '^before_semicolon_loc=' "$SF" | cut -d= -f2)
-        AS=$(grep '^after_semicolon_loc=' "$SF" | cut -d= -f2)
-        SLP=$(grep '^sloc_reduction_pct=' "$SF" | cut -d= -f2)
-        BC=$(grep '^before_cycles=' "$SF" | cut -d= -f2)
-        AC=$(grep '^after_cycles=' "$SF" | cut -d= -f2)
-        CP=$(grep '^cycles_change_pct=' "$SF" | cut -d= -f2)
-        printf "%-18s %6s %8s %8s %6s %8s %8s %6s %12s %12s %7s\n" \
-            "$BASENAME" "$CR" "$BB" "$AB" "$SP" "$BS" "$AS" "$SLP" "$BC" "$AC" "$CP"
-    done
-    echo ""
+        TMP_ROWS="$SCRIPT_DIR/tmp/summary_rows.txt"
+        mkdir -p "$SCRIPT_DIR/tmp"
+        : > "$TMP_ROWS"
+
+        for f in "${C_FILES[@]}"; do
+            BASENAME="$(basename "$f" .c)"
+            SF="$SCRIPT_DIR/output/$BASENAME/stats.txt"
+            CR=$(grep '^correctness=' "$SF" | cut -d= -f2)
+            BS=$(grep '^before_semicolon_loc=' "$SF" | cut -d= -f2)
+            AS=$(grep '^after_semicolon_loc=' "$SF" | cut -d= -f2)
+            SLP=$(grep '^sloc_reduction_pct=' "$SF" | cut -d= -f2 | tr -d '%')
+            BL=$(grep '^before_lines=' "$SF" | cut -d= -f2)
+            AL=$(grep '^after_lines=' "$SF" | cut -d= -f2)
+            LP=$(grep '^lines_reduction_pct=' "$SF" | cut -d= -f2 | tr -d '%')
+            BB=$(grep '^before_bytes=' "$SF" | cut -d= -f2)
+            AB=$(grep '^after_bytes=' "$SF" | cut -d= -f2)
+            BP=$(grep '^size_reduction_pct=' "$SF" | cut -d= -f2 | tr -d '%')
+
+            printf "%4d | %-18s %6s %7d %7d %5d%% %7d %7d %5d%% %8d %8d %5d%%\n" \
+                "$SLP" "$BASENAME" "$CR" "$BS" "$AS" "$SLP" "$BL" "$AL" "$LP" "$BB" "$AB" "$BP" >> "$TMP_ROWS"
+        done
+
+        # Sort numeric descending by the first field (the SLOC penalty/gain)
+        sort -nr "$TMP_ROWS" | cut -d'|' -f2-
+        echo ""
     fi  # end quiet guard for per-file table
 
     # ── Compute averaged stats (always printed) ──
-    summary_header "══════════════════════════════════════════════"
-    summary_header "  Overall Averaged Stats (${#C_FILES[@]} files)"
-    summary_header "══════════════════════════════════════════════"
-    echo ""
-
     TOT_BB=0; TOT_AB=0
     TOT_BS=0; TOT_AS=0
     TOT_BL=0; TOT_AL=0
@@ -522,28 +559,24 @@ if [ -d "$TARGET" ]; then
         AVG_BC="N/A"; AVG_AC="N/A"; AVG_CYC_PCT="N/A"
     fi
 
-    summary_info "  Files processed:       $FILE_COUNT"
-    summary_info "  Correctness:           $PASS_COUNT/$FILE_COUNT passed, $SKIP_COUNT skipped (timeout)"
-    echo ""
-    summary_info "  ── Avg Size (bytes) ──"
-    summary_info "    Before:              $AVG_BB"
-    summary_info "    After:               $AVG_AB"
-    summary_info "    Reduction:           ${AVG_SIZE_PCT}%"
-    echo ""
-    summary_info "  ── Avg Lines (wc -l) ──"
-    summary_info "    Before:              $AVG_BL"
-    summary_info "    After:               $AVG_AL"
-    summary_info "    Reduction:           ${AVG_LINES_PCT}%"
-    echo ""
-    summary_info "  ── Avg Semicolon LOC ──"
-    summary_info "    Before:              $AVG_BS"
-    summary_info "    After:               $AVG_AS"
-    summary_info "    Reduction:           ${AVG_SLOC_PCT}%"
-    echo ""
-    summary_info "  ── Avg CPU Cycles ──"
-    summary_info "    Before:              $AVG_BC"
-    summary_info "    After:               $AVG_AC"
-    summary_info "    Change:              $AVG_CYC_PCT"
+    # ── Overall Summary table ──
+    SUMMARY_FILE="$SCRIPT_DIR/output/summary.txt"
+    mkdir -p "$SCRIPT_DIR/output"
+    {
+        echo "══════════════════════════════════════════════════"
+        echo "  Overall Summary ($FILE_COUNT files)"
+        echo "══════════════════════════════════════════════════"
+        echo "  Correctness:  $PASS_COUNT/$FILE_COUNT passed, $FAIL_COUNT failed, $SKIP_COUNT skipped"
+        echo ""
+        echo "  ┌──────────────────┬──────────┬──────────┬────────────┐"
+        echo "  │ Metric (avg)     │ Before   │ After    │ Reduction  │"
+        echo "  ├──────────────────┼──────────┼──────────┼────────────┤"
+        printf "  │ %-16s │ %8s │ %8s │ %10s │\n" "Size (bytes)" "$(format_int "$AVG_BB")" "$(format_int "$AVG_AB")" "${AVG_SIZE_PCT}%"
+        printf "  │ %-16s │ %8s │ %8s │ %10s │\n" "Lines (wc -l)" "$(format_int "$AVG_BL")" "$(format_int "$AVG_AL")" "${AVG_LINES_PCT}%"
+        printf "  │ %-16s │ %8s │ %8s │ %10s │\n" "Semicolon LOC" "$(format_int "$AVG_BS")" "$(format_int "$AVG_AS")" "${AVG_SLOC_PCT}%"
+        printf "  │ %-16s │ %8s │ %8s │ %10s │\n" "CPU Cycles" "$(format_int "$AVG_BC")" "$(format_int "$AVG_AC")" "${AVG_CYC_PCT}"
+        echo "  └──────────────────┴──────────┴──────────┴────────────┘"
+    } | tee "$SUMMARY_FILE"
     echo ""
 
     # ── Batch pass/fail ──

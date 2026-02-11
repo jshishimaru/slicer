@@ -1,99 +1,88 @@
 # Slicer — CIL-Based C Source Reducer
 
-A minimal pipeline that reduces C source code using [goblint-cil](https://github.com/goblint/cil) AST transformations while preserving exact program behavior (stdout + exit code).
+Reduces C source code using [goblint-cil](https://github.com/goblint/cil) AST transformations while preserving exact program behavior (stdout + exit code). If the reduced output is larger than the original, the original source is kept as-is.
 
-## Prerequisites
+## Dependencies
 
-| Tool | Install |
-|------|---------|
-| OCaml 5.x + opam | [opam.ocaml.org](https://opam.ocaml.org/) |
-| goblint-cil | `opam install goblint-cil` |
-| gcc | System package manager |
-| perf | `linux-tools` / `perf` package (optional, for cycle measurement) |
-| csmith | System package manager (optional, for benchmarking) |
+- **OCaml 5.x + opam** — [opam.ocaml.org](https://opam.ocaml.org/)
+- **goblint-cil** — `opam install goblint-cil`
+- **gcc** — system package manager
+- **csmith** — system package manager (for test generation)
+- **perf** — `linux-tools` package (optional, for CPU cycle measurement)
+
+## Setup
+
+Install opam and initialize it, then install the OCaml dependency:
+
+    opam init
+    eval $(opam env)
+    opam install goblint-cil
+
+Install csmith and locate its runtime headers (needed for compiling generated tests):
+
+    sudo apt install csmith
+    # Find the include path — typically /usr/include/csmith or similar
+    ls /usr/include/csmith-*/
 
 ## Build
 
-```bash
-opam exec -- dune build
-```
+    opam exec -- dune build
 
-## Usage
+## Generating Test Cases
+
+Use `bench.sh` to generate csmith programs into the `suite/` directory:
+
+    ./bench.sh --no-run                    # generate 1000 programs, don't run pipeline
+    ./bench.sh --no-run -n 50              # generate 50 programs
+    ./bench.sh --no-run -n 100 --seed 42   # 100 reproducible programs from seed 42
+
+## Running the Pipeline
 
 ### Single file
 
-```bash
-./pipeline.sh examples/example.c
-```
+    ./pipeline.sh examples/example.c
 
-### Directory of C files
+### Directory of files
 
-```bash
-./pipeline.sh examples/
-```
+    ./pipeline.sh suite/
 
-Each file gets its own output directory under `output/<basename>/` containing `output.c` (reduced source) and `stats.txt` (before/after metrics).
+### Run on the generated suite (skip generation)
 
-### Quiet mode
+    ./bench.sh --no-gen
 
-```bash
-./pipeline.sh --quiet examples/    # only print final averaged stats
-```
+### Full benchmark (generate + run)
 
-### Benchmarking with csmith
+    ./bench.sh
+    ./bench.sh -n 100 --seed 42
 
-```bash
-./bench.sh                           # generate 1000 programs + run pipeline
-./bench.sh -n 100 --seed 42         # 100 reproducible programs
-./bench.sh -n 50 -v                  # verbose per-file output
-./bench.sh --no-run                  # generate suite only
-./bench.sh --no-gen                  # run pipeline on existing suite
-```
+Results go to `output/<basename>/output.c` (reduced source) and `output/<basename>/stats.txt` (metrics).
 
-The suite is saved in `suite/` and preserved between runs.
+## Flags
 
-## Pipeline
+### pipeline.sh
 
-```
-input.c → gcc -E -P → slicer (CIL transforms) → output.c → correctness check + perf
-```
+| Flag | Description |
+|------|-------------|
+| `--quiet`, `-q` | Only print final averaged summary stats |
+| `-n`, `--count <N>` | Limit to first N files when given a directory |
 
-**Transformations** (applied in order):
-1. **Constant folding** — evaluate compile-time expressions
-2. **Remove unused** — strip globals unreachable from `main`
-3. **Remove empty functions** — drop functions with empty bodies
-4. **Remove unused** — second cleanup pass
+### bench.sh
 
-## Output
+| Flag | Description |
+|------|-------------|
+| `-n`, `--count <N>` | Number of csmith programs to generate (default: 1000) |
+| `-s`, `--suite <DIR>` | Suite directory name (default: `suite`) |
+| `-v`, `--verbose` | Show per-file pipeline output |
+| `--no-run` | Generate suite only, skip pipeline |
+| `--no-gen` | Skip generation, run pipeline on existing suite |
+| `--seed <N>` | Starting seed for reproducible generation |
 
-- `output/<name>/output.c` — reduced C source
-- `output/<name>/stats.txt` — bytes, lines, semicolon-LOC, CPU cycles, correctness, stdout diff
+### Environment Variables
 
-## Project Structure
-
-```
-bin/slicer.ml          Orchestrator (parse → transform → emit)
-lib/transform.ml       Transform.t type definition
-lib/fold_constants.ml  Constant folding transform
-lib/remove_unused.ml   Dead code removal (RmUnused)
-lib/remove_empty_functions.ml  Empty function removal
-lib/transforms.ml      Pipeline registry
-lib/stats.ml           Semicolon-LOC counter
-pipeline.sh            End-to-end shell orchestrator
-bench.sh               Csmith benchmark generator + runner
-context.md             Detailed CIL API reference & docs
-```
-
-## Adding a transform
-
-1. Create `lib/my_transform.ml` with a `transform : Transform.t` value
-2. Add it to the `pipeline` list in `lib/transforms.ml`
-3. `opam exec -- dune build && ./pipeline.sh examples/example.c`
-
-See `context.md` §9 for full examples.
-
-## Environment variables
-
-```bash
-CC=clang CFLAGS="-O2 -w" ./pipeline.sh input.c
-```
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CC` | `gcc` | C compiler |
+| `CFLAGS` | `-O0 -w` | Compiler flags |
+| `RUN_TIMEOUT` | `3` | Seconds before killing a running binary |
+| `CSMITH` | `csmith` | Path to csmith binary |
+| `CSMITH_INCLUDE` | `/usr/include` | Path to csmith runtime headers |

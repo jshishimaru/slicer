@@ -87,17 +87,33 @@ and offset_safe_for_init (local_set : (int, bool) Hashtbl.t) (off : offset) : bo
   | Index (e, o) ->
     expr_safe_for_init local_set e && offset_safe_for_init local_set o
 
-(** Flatten a multi-dimensional index offset like
-    Index(0, Index(1, Index(2, NoOffset)))
-    into the list [0; 1; 2]. Returns None if any index is non-constant. *)
-let rec flatten_index_offset (off : offset) : int list option =
+(** Safe comparison for offsets: avoids structural equality on fieldinfo
+    (which contains cyclic compinfo references). Compares by field name +
+    composite key instead. *)
+let rec offset_equal (o1 : offset) (o2 : offset) : bool =
+  match o1, o2 with
+  | NoOffset, NoOffset -> true
+  | Field (f1, r1), Field (f2, r2) ->
+    f1.fname = f2.fname && f1.fcomp.ckey = f2.fcomp.ckey && offset_equal r1 r2
+  | Index (e1, r1), Index (e2, r2) ->
+    (match const_int_of_exp e1, const_int_of_exp e2 with
+     | Some i1, Some i2 -> i1 = i2 && offset_equal r1 r2
+     | _ -> false)
+  | _ -> false
+
+(** Flatten a multi-dimensional index offset, returning the index list and
+    any trailing non-index suffix (e.g. Field(f0, NoOffset) for arrays of
+    structs/unions).
+    Index(0, Index(1, Field(f0, NoOffset))) → Some ([0; 1], Field(f0, NoOffset))
+    Index(0, Index(1, NoOffset))            → Some ([0; 1], NoOffset) *)
+let rec flatten_index_offset (off : offset) : (int list * offset) option =
   match off with
-  | NoOffset -> Some []
+  | NoOffset -> Some ([], NoOffset)
   | Index (e, rest) ->
     (match const_int_of_exp e, flatten_index_offset rest with
-     | Some i, Some is -> Some (i :: is)
+     | Some i, Some (is, suffix) -> Some (i :: is, suffix)
      | _ -> None)
-  | Field _ -> None   (* struct fields — not an array index *)
+  | Field _ -> Some ([], off)   (* trailing field — return as suffix *)
 
 (** Get the dimensions (sizes) of a possibly multi-dimensional array type.
     TArray(TArray(TArray(int, 3), 7), 10) → [10; 7; 3] *)
@@ -149,7 +165,8 @@ let total_elements (dims : int list) : int =
     given the array type. For a 1-D array, builds:
       CompoundInit(arr_type, [(Index(0,NoOff), SingleInit e0); ...])
     For multi-dimensional, builds nested CompoundInits. *)
-let rec build_compound_init (t : typ) (exprs : exp array) (base : int) : init =
+let rec build_compound_init (t : typ) (exprs : exp array) (base : int)
+    (suffix : offset) : init =
   match unrollType t with
   | TArray (elem_t, len_opt, attrs) ->
     let n = (try lenOfArray len_opt with LenOfArray -> 0) in
@@ -160,13 +177,18 @@ let rec build_compound_init (t : typ) (exprs : exp array) (base : int) : init =
     in
     let entries = List.init n (fun i ->
       let off = Index (integer i, NoOffset) in
-      let sub_init = build_compound_init elem_t exprs (base + i * sub_size) in
+      let sub_init =
+        build_compound_init elem_t exprs (base + i * sub_size) suffix in
       (off, sub_init)
     ) in
     CompoundInit (TArray (elem_t, len_opt, attrs), entries)
   | _ ->
-    (* Base case: scalar element *)
-    SingleInit exprs.(base)
+    (* Base case: scalar or struct/union element *)
+    (match suffix with
+     | NoOffset -> SingleInit exprs.(base)
+     | _ ->
+       (* Wrap in CompoundInit for struct/union with field designator *)
+       CompoundInit (t, [(suffix, SingleInit exprs.(base))]))
 
 (* ------------------------------------------------------------------ *)
 (*  Core: detect and reconstruct array inits in a function             *)
@@ -217,19 +239,22 @@ let reconstruct_in_function (fd : fundec) : unit =
        assignments. When we encounter something that breaks the pattern,
        we flush the accumulated run. *)
     let result = ref [] in
-    (* Current accumulator: (varinfo, dims, (flat_index → exp) mapping, expected_next_flat_idx) *)
-    let current_var : (varinfo * int list * (int, exp) Hashtbl.t * int ref) option ref = ref None in
+    (* Current accumulator: (varinfo, dims, (flat_index → exp) mapping,
+       expected_next_flat_idx, trailing offset suffix) *)
+    let current_var :
+      (varinfo * int list * (int, exp) Hashtbl.t * int ref * offset) option ref
+      = ref None in
 
     let flush () =
       match !current_var with
       | None -> ()
-      | Some (vi, dims, collected, _next_idx) ->
+      | Some (vi, dims, collected, _next_idx, suffix) ->
         let total = total_elements dims in
         if Hashtbl.length collected = total then begin
           (* We have a complete initialization — build CompoundInit *)
           let exprs = Array.make total (zero) in
           Hashtbl.iter (fun idx e -> exprs.(idx) <- e) collected;
-          let compound = build_compound_init vi.vtype exprs 0 in
+          let compound = build_compound_init vi.vtype exprs 0 suffix in
           vi.vinit.init <- Some compound;
           (* Don't add the Set instructions back — they're consumed *)
           ()
@@ -240,7 +265,9 @@ let reconstruct_in_function (fd : fundec) : unit =
           List.iter (fun (idx, e) ->
             let indices = linear_to_multi dims idx in
             let off = make_index_offset indices in
-            result := Set ((Var vi, off), e, locUnknown, locUnknown) :: !result
+            (* Re-append the suffix (e.g. .f0) for struct/union arrays *)
+            let full_off = addOffset suffix off in
+            result := Set ((Var vi, full_off), e, locUnknown, locUnknown) :: !result
           ) sorted
         end;
         current_var := None
@@ -265,13 +292,14 @@ let reconstruct_in_function (fd : fundec) : unit =
           && expr_safe_for_init local_set e
         ->
         (match flatten_index_offset off with
-         | Some indices ->
+         | Some (indices, suffix) when List.length indices > 0 ->
            let (_lvi, dims) = Hashtbl.find local_arrays vi.vid in
            let flat_idx = flat_index_of_indices dims indices in
            if flat_idx >= 0 then begin
              (* Check if this continues the current var's sequence *)
              (match !current_var with
-              | Some (cv, _cdims, collected, next_idx) when cv.vid = vi.vid ->
+              | Some (cv, _cdims, collected, next_idx, prev_suffix)
+                when cv.vid = vi.vid && offset_equal prev_suffix suffix ->
                 if flat_idx = !next_idx then begin
                   Hashtbl.replace collected flat_idx e;
                   next_idx := flat_idx + 1
@@ -280,13 +308,18 @@ let reconstruct_in_function (fd : fundec) : unit =
                   flush ();
                   result := instr :: !result
                 end
+              | Some (cv, _, _, _, prev_suffix)
+                when cv.vid = vi.vid && not (offset_equal prev_suffix suffix) ->
+                (* Same var but different field suffix — flush and emit *)
+                flush ();
+                result := instr :: !result
               | Some _ ->
                 (* Different variable — flush previous, start new sequence *)
                 flush ();
                 if flat_idx = 0 then begin
                   let tbl = Hashtbl.create 64 in
                   Hashtbl.replace tbl 0 e;
-                  current_var := Some (vi, dims, tbl, ref 1)
+                  current_var := Some (vi, dims, tbl, ref 1, suffix)
                 end else
                   result := instr :: !result
               | None ->
@@ -294,14 +327,14 @@ let reconstruct_in_function (fd : fundec) : unit =
                 if flat_idx = 0 then begin
                   let tbl = Hashtbl.create 64 in
                   Hashtbl.replace tbl 0 e;
-                  current_var := Some (vi, dims, tbl, ref 1)
+                  current_var := Some (vi, dims, tbl, ref 1, suffix)
                 end else
                   result := instr :: !result)
            end else begin
              flush ();
              result := instr :: !result
            end
-         | None ->
+         | _ ->
            flush ();
            result := instr :: !result)
       | _ ->
