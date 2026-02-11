@@ -1,0 +1,45 @@
+═══════════════════════════════════════════════
+  Stats for: test_0005
+═══════════════════════════════════════════════
+Source: /home/jshishimaru/3-2/teb/assignments/slicer/suite/test_0005.c
+
+  Correctness          PASS
+  Stdout Match         PASS
+  Exit Code Match      PASS  (original=0, reduced=0)
+
+  ┌──────────────────┬──────────┬──────────┬────────────┐
+  │ Metric           │ Before   │ After    │ Reduction  │
+  ├──────────────────┼──────────┼──────────┼────────────┤
+  │ Size (bytes)     │  111,322 │  111,322 │         0% │
+  │ Lines (wc -l)    │    1,447 │    1,447 │         0% │
+  │ Semicolon LOC    │    1,040 │    1,040 │         0% │
+  │ CPU Cycles       │  286,031 │  362,773 │       +26% │
+  └──────────────────┴──────────┴──────────┴────────────┘
+
+── Raw Stats (for scripting) ──
+source_file=/home/jshishimaru/3-2/teb/assignments/slicer/suite/test_0005.c
+correctness=PASS
+stdout_match=PASS
+exit_code_match=PASS
+exit_code_original=0
+exit_code_reduced=0
+before_bytes=111322
+after_bytes=111322
+size_reduction_pct=0%
+before_lines=1447
+after_lines=1447
+lines_reduction_pct=0%
+before_semicolon_loc=1040
+after_semicolon_loc=1040
+sloc_reduction_pct=0%
+before_cycles=286,031
+after_cycles=362,773
+cycles_change_pct=+26%
+
+── Program Output (stdout) ──
+before_stdout<<EOF
+checksum = C9810583
+EOF
+after_stdout<<EOF
+checksum = C9810583
+EOF

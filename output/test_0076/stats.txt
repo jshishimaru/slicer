@@ -1,0 +1,40 @@
+═══════════════════════════════════════════
+  Stats for: test_0076
+═══════════════════════════════════════════
+
+source_file=/home/jshishimaru/3-2/teb/assignments/slicer/suite/test_0076.c
+
+── Correctness ──
+correctness=PASS
+stdout_match=PASS
+exit_code_match=PASS
+exit_code_original=0
+exit_code_reduced=0
+
+── Program Output (stdout) ──
+before_stdout<<EOF
+checksum = 5B6B07F2
+EOF
+after_stdout<<EOF
+checksum = 5B6B07F2
+EOF
+
+── Size (bytes) ──
+before_bytes=60435
+after_bytes=24003
+size_reduction_pct=60%
+
+── Lines (wc -l) ──
+before_lines=911
+after_lines=532
+lines_reduction_pct=41%
+
+── Semicolon LOC (raw file) ──
+before_semicolon_loc=616
+after_semicolon_loc=258
+sloc_reduction_pct=58%
+
+── CPU Cycles (perf stat -e cycles:u -r 3) ──
+before_cycles=288,742
+after_cycles=314,863
+cycles_change_pct=+9%
