@@ -30,7 +30,6 @@ NC='\033[0m'
 # ── Quiet mode (set by --quiet flag) ──
 QUIET=0
 MAX_COUNT=0  # 0 = process all files
-WITH_PREPROCESSING=0  # when 1, measure "before" from preprocessed file
 
 info()  { [ "$QUIET" -eq 0 ] && echo -e "${GREEN}[pipeline]${NC} $*" || true; }
 warn()  { echo -e "${YELLOW}[pipeline]${NC} $*"; }
@@ -94,26 +93,72 @@ process_file() {
     local ORIG_OUT="$FILE_TMP_DIR/original.out"
     local REDUCED_OUT="$FILE_TMP_DIR/reduced.out"
     local STATS_FILE="$FILE_OUT_DIR/stats.txt"
+    local GCOV_DIR="$FILE_TMP_DIR/gcov"
+    local GCOV_JSON="$FILE_TMP_DIR/gcov_data.json"
 
     header "━━━ Processing: $BASENAME ━━━"
 
     # ── Step 1: Preprocess ──
+    # NOTE: Do NOT use -P here.  CIL needs the #line directives that gcc -E
+    # emits so that each global retains its originating file path.  This is
+    # required by remove_header_globals to distinguish user code from headers.
+    # The slicer suppresses #line directives in its own output (lineDirectiveStyle := None).
     info "[$BASENAME] Step 1: Preprocessing"
     $CC -E $CFLAGS "$INPUT" -o "$PREPROCESSED"
 
+    # ── Step 1.5: gcov profiling — compile with coverage, run, collect ──
+    local GCOV_FLAG=""
+    info "[$BASENAME] Step 1.5: gcov coverage profiling"
+    mkdir -p "$GCOV_DIR"
+    # Compile the preprocessed source with coverage instrumentation
+    # Copy preprocessed.c into gcov dir so .gcno/.gcda are co-located
+    cp "$PREPROCESSED" "$GCOV_DIR/preprocessed.c"
+    if $CC --coverage -O0 -w "$GCOV_DIR/preprocessed.c" -o "$GCOV_DIR/preprocessed" 2>/dev/null; then
+        # Run the instrumented binary (with timeout)
+        set +e
+        timeout "$RUN_TIMEOUT" "$GCOV_DIR/preprocessed" > /dev/null 2>&1
+        local GCOV_RUN_EXIT=$?
+        set -e
+
+        if [ "$GCOV_RUN_EXIT" -ne 124 ]; then
+            # Collect coverage data — gcov reads .gcno/.gcda from the compile dir
+            # Use --json-format --stdout to get JSON output
+            # Some gcov versions emit gzipped JSON, others emit plain JSON
+            pushd "$GCOV_DIR" > /dev/null
+            local GCOV_RAW
+            GCOV_RAW="$(gcov --json-format --stdout preprocessed.c 2>/dev/null)" || true
+            if [ -n "$GCOV_RAW" ]; then
+                # Try gunzip first; if it fails, assume plain JSON
+                if echo "$GCOV_RAW" | gunzip > "$GCOV_JSON" 2>/dev/null; then
+                    : # successfully decompressed
+                else
+                    echo "$GCOV_RAW" > "$GCOV_JSON"
+                fi
+                # Verify the JSON file is non-empty and valid
+                if [ -s "$GCOV_JSON" ]; then
+                    GCOV_FLAG="--gcov-json $GCOV_JSON"
+                    info "[$BASENAME]   ✓ gcov data collected"
+                else
+                    warn "[$BASENAME]   gcov produced empty JSON — skipping"
+                    rm -f "$GCOV_JSON"
+                fi
+            else
+                warn "[$BASENAME]   gcov JSON collection failed — skipping"
+            fi
+            popd > /dev/null
+        else
+            warn "[$BASENAME]   gcov binary timed out — skipping coverage"
+        fi
+    else
+        warn "[$BASENAME]   gcov compilation failed — skipping coverage"
+    fi
+
     # ── Step 2: CIL transform ──
     info "[$BASENAME] Step 2: CIL transformation"
-    # Default: pass original source → slicer strips headers + re-adds #include
-    # --with-preprocessing: omit original → slicer keeps expanded output as-is
-    if [ "$WITH_PREPROCESSING" -eq 0 ]; then
-        local SLICER_CMD=("$SLICER" "$PREPROCESSED" "$OUTPUT_C" "$SLICER_STATS" "$INPUT")
-    else
-        local SLICER_CMD=("$SLICER" "$PREPROCESSED" "$OUTPUT_C" "$SLICER_STATS")
-    fi
     if [ "$QUIET" -eq 1 ]; then
-        "${SLICER_CMD[@]}" 2>/dev/null
+        "$SLICER" "$PREPROCESSED" "$OUTPUT_C" "$SLICER_STATS" "$INPUT" $GCOV_FLAG 2>/dev/null
     else
-        "${SLICER_CMD[@]}"
+        "$SLICER" "$PREPROCESSED" "$OUTPUT_C" "$SLICER_STATS" "$INPUT" $GCOV_FLAG
     fi
 
     # ── Step 3: Compile original ──
@@ -122,15 +167,24 @@ process_file() {
 
     # ── Step 4: Compile reduced ──
     info "[$BASENAME] Step 4: Compiling reduced"
-    $CC $CFLAGS "$OUTPUT_C" -o "$REDUCED_BIN"
+    local COMPILE_REDUCED_OK=1
+    if ! $CC $CFLAGS "$OUTPUT_C" -o "$REDUCED_BIN" 2>/dev/null; then
+        warn "[$BASENAME]   ✗ Reduced output failed to compile"
+        COMPILE_REDUCED_OK=0
+    fi
 
     # ── Step 5: Run both (with timeout to catch infinite loops) ──
     info "[$BASENAME] Step 5: Correctness check (timeout=${RUN_TIMEOUT}s)"
     set +e
     timeout "$RUN_TIMEOUT" "$ORIG_BIN" > "$ORIG_OUT" 2>&1
     local ORIG_EXIT=$?
-    timeout "$RUN_TIMEOUT" "$REDUCED_BIN" > "$REDUCED_OUT" 2>&1
-    local REDUCED_EXIT=$?
+    if [ "$COMPILE_REDUCED_OK" -eq 1 ]; then
+        timeout "$RUN_TIMEOUT" "$REDUCED_BIN" > "$REDUCED_OUT" 2>&1
+        local REDUCED_EXIT=$?
+    else
+        echo "" > "$REDUCED_OUT"
+        local REDUCED_EXIT=999
+    fi
     set -e
 
     local ORIG_STDOUT REDUCED_STDOUT
@@ -143,8 +197,13 @@ process_file() {
     local CORRECT="PASS"
     local TIMED_OUT=0
 
+    if [ "$COMPILE_REDUCED_OK" -eq 0 ]; then
+        CORRECT="FAIL"
+        STDOUT_MATCH="FAIL"
+        EXIT_MATCH="FAIL"
+        warn "[$BASENAME]   ✗ Reduced output did not compile — marking FAIL"
     # Exit code 124 = killed by timeout
-    if [ "$ORIG_EXIT" -eq 124 ] || [ "$REDUCED_EXIT" -eq 124 ]; then
+    elif [ "$ORIG_EXIT" -eq 124 ] || [ "$REDUCED_EXIT" -eq 124 ]; then
         TIMED_OUT=1
         CORRECT="SKIP"
         STDOUT_MATCH="SKIP"
@@ -168,20 +227,16 @@ process_file() {
     fi
 
     # ── Step 6: Collect size / LOC stats ──
-    local MEASURE_FILE="$INPUT"
-    if [ "$WITH_PREPROCESSING" -eq 1 ]; then
-        MEASURE_FILE="$PREPROCESSED"
-    fi
     local ORIG_BYTES REDUCED_BYTES ORIG_LINES REDUCED_LINES
-    ORIG_BYTES=$(wc -c < "$MEASURE_FILE")
+    ORIG_BYTES=$(wc -c < "$INPUT")
     REDUCED_BYTES=$(wc -c < "$OUTPUT_C")
-    ORIG_LINES=$(wc -l < "$MEASURE_FILE")
+    ORIG_LINES=$(wc -l < "$INPUT")
     REDUCED_LINES=$(wc -l < "$OUTPUT_C")
 
-    # Semicolon LOC (from slicer stats file)
+    # Semicolon LOC — count individual ';' characters in original input and final output
     local BEFORE_SLOC AFTER_SLOC
-    BEFORE_SLOC=$(grep 'before_semicolon_loc' "$SLICER_STATS" | cut -d= -f2)
-    AFTER_SLOC=$(grep 'after_semicolon_loc' "$SLICER_STATS" | cut -d= -f2)
+    BEFORE_SLOC=$(tr -cd ';' < "$INPUT" | wc -c)
+    AFTER_SLOC=$(tr -cd ';' < "$OUTPUT_C" | wc -c)
 
     # Reduction percentages
     local SIZE_REDUCTION=0
@@ -251,7 +306,7 @@ process_file() {
         echo "after_lines=$REDUCED_LINES"
         echo "lines_reduction_pct=${LINES_REDUCTION}%"
         echo ""
-        echo "── Semicolon LOC (CIL AST) ──"
+        echo "── Semicolon LOC (raw file) ──"
         echo "before_semicolon_loc=$BEFORE_SLOC"
         echo "after_semicolon_loc=$AFTER_SLOC"
         echo "sloc_reduction_pct=${SLOC_REDUCTION}%"
@@ -283,7 +338,6 @@ process_file() {
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --quiet|-q) QUIET=1; shift ;;
-        --with-preprocessing) WITH_PREPROCESSING=1; shift ;;
         -n|--count)
             MAX_COUNT="$2"
             if ! [[ "$MAX_COUNT" =~ ^[0-9]+$ ]] || [ "$MAX_COUNT" -lt 1 ]; then

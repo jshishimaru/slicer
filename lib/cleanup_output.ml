@@ -188,7 +188,7 @@ let cleanup (text : string) : string =
     let replace = Hashtbl.create 16 in     (* line index → replacement text *)
 
     (* Check if a trimmed line looks like a simple statement (assignment, inc, dec).
-       Must end with ';' and not be a control-flow keyword. *)
+       Must end with ';' and not be a control-flow keyword or a label. *)
     let is_simple_stmt trimmed =
       String.length trimmed > 0
       && trimmed.[String.length trimmed - 1] = ';'
@@ -196,7 +196,25 @@ let cleanup (text : string) : string =
             try String.sub trimmed 0 (String.index trimmed ' ')
             with Not_found -> trimmed
           in
-          not (List.mem first_word
+          (* Reject CIL labels like "__Cont:" or "while_break:" that end with ':' *)
+          let is_label =
+            String.length first_word > 0
+            && first_word.[String.length first_word - 1] = ':'
+          in
+          (* Also reject lines containing a label anywhere: "ident: ... ;" *)
+          let has_colon_before_eq =
+            try
+              let colon_pos = String.index trimmed ':' in
+              (* Make sure the colon isn't inside a ternary or after '=' *)
+              let eq_pos =
+                try String.index trimmed '='
+                with Not_found -> String.length trimmed
+              in
+              colon_pos < eq_pos
+            with Not_found -> false
+          in
+          (not is_label) && (not has_colon_before_eq)
+          && not (List.mem first_word
                  ["if"; "else"; "while"; "for"; "switch"; "return";
                   "break"; "continue"; "goto"; "case"; "default";
                   "do"; "int"; "char"; "short"; "long"; "unsigned";
